@@ -78,11 +78,11 @@ ENDIF(BUILD_TESTING)
 # ADD_TEST(Testname ExecutableToRun arg1 arg2 arg3)
 
 ADD_TEST(Test0 ${TEST_COMMAND}
-   check ${INPUT_IMAGE} embryo-fill-0-0-255.png 0
+   check ${INPUT_IMAGE} embryo-fill-0-0-255.png 0 255 0
    --compare embryo-fill-0-0-255.png ${CMAKE_CURRENT_SOURCE_DIR}/images/embryo-fill-0-0-255.png
 )
 
 ADD_TEST(Test1 ${TEST_COMMAND}
-   check ${INPUT_IMAGE} embryo-fill-1-0-255.png 1
+   check ${INPUT_IMAGE} embryo-fill-1-0-255.png 1 255 0
    --compare embryo-fill-1-0-255.png ${CMAKE_CURRENT_SOURCE_DIR}/images/embryo-fill-1-0-255.png
 )

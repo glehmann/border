@@ -88,6 +88,7 @@ public:
   typedef typename TInputImage::IndexType   IndexType;
   typedef typename TInputImage::SizeType    SizeType;
   typedef typename TInputImage::OffsetType  OffsetType;
+  typedef typename TInputImage::PixelType   InputImagePixelType;
 
   typedef TOutputImage                      OutputImageType;
   typedef typename TOutputImage::RegionType RegionType;
@@ -134,10 +135,16 @@ public:
   itkSetMacro(BackgroundValue, OutputImagePixelType);
   itkGetMacro(BackgroundValue, OutputImagePixelType);
 
+  /**
+   */
+  itkSetMacro(ForegroundValue, InputImagePixelType);
+  itkGetMacro(ForegroundValue, InputImagePixelType);
+
 protected:
   BorderImageFilter() 
     {
     m_FullyConnected = false;
+    m_ForegroundValue = NumericTraits< InputImagePixelType >::max();
     m_BackgroundValue = NumericTraits< OutputImagePixelType >::Zero;
     }
   virtual ~BorderImageFilter() {}
@@ -165,6 +172,7 @@ protected:
   bool m_FullyConnected;
   
 private:
+  InputImagePixelType m_ForegroundValue;
   OutputImagePixelType m_BackgroundValue;
 
   // some additional types

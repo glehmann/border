@@ -83,8 +83,6 @@ BorderImageFilter< TInputImage, TOutputImage>
   m_BackgroundLineMap.clear();
   m_BackgroundLineMap.resize( linecount );
 //  m_FirstLineIdToJoin.resize( nbOfThreads - 1 );
-
-  output->FillBuffer(0);
 }
 
 
@@ -96,6 +94,34 @@ BorderImageFilter< TInputImage, TOutputImage>
 {
   typename TOutputImage::Pointer output = this->GetOutput();
   typename TInputImage::ConstPointer input = this->GetInput();
+
+
+  // first copy the input image to the output image
+  ImageRegionConstIterator<InputImageType> inIt
+            = ImageRegionConstIterator<InputImageType>( input, outputRegionForThread );
+  // iterator on output image
+  ImageRegionIterator<OutputImageType> outIt
+            = ImageRegionIterator<OutputImageType>( output, outputRegionForThread );
+  outIt.GoToBegin();
+  inIt.GoToBegin();
+
+  ProgressReporter * progress2 = new ProgressReporter(this, threadId, outputRegionForThread.GetNumberOfPixels(), 20, 0.0, 0.2);
+  while( !outIt.IsAtEnd() )
+    {
+    if( inIt.Get() != m_ForegroundValue )
+      {
+      outIt.Set( static_cast<OutputPixelType>( inIt.Get() ) );
+      }
+    else
+      {
+      outIt.Set( m_BackgroundValue );
+      }
+    ++outIt;
+    ++inIt;
+    progress2->CompletedPixel();
+    }
+  delete progress2;
+
 
   long nbOfThreads = this->GetNumberOfThreads();
   if( itk::MultiThreader::GetGlobalMaximumNumberOfThreads() != 0 )
@@ -113,7 +139,7 @@ BorderImageFilter< TInputImage, TOutputImage>
   long pixelcountForThread = outputRegionForThread.GetNumberOfPixels();
   long xsizeForThread = outputRegionForThread.GetSize()[0];
   long linecountForThread = pixelcountForThread/xsizeForThread;
-  ProgressReporter progress(this, threadId, linecountForThread * 2);
+  ProgressReporter progress(this, threadId, linecountForThread * 2, 80, 0.2, 0.8);
 
   // find the split axis
   IndexType outputRegionIdx = output->GetRequestedRegion().GetIndex();
@@ -147,7 +173,7 @@ BorderImageFilter< TInputImage, TOutputImage>
       {
       InputPixelType PVal = inLineIt.Get();
       //std::cout << inLineIt.GetIndex() << std::endl;
-      if (PVal != NumericTraits<InputPixelType>::Zero)
+      if (PVal == m_ForegroundValue)
         {
         // We've hit the start of a run
         runLength thisRun;
@@ -158,7 +184,7 @@ BorderImageFilter< TInputImage, TOutputImage>
         ++length;
         ++inLineIt;
         while( !inLineIt.IsAtEndOfLine()
-          && inLineIt.Get() != NumericTraits<InputPixelType>::Zero )
+          && inLineIt.Get() == m_ForegroundValue )
           {
           ++length;
           ++inLineIt;
@@ -180,7 +206,7 @@ BorderImageFilter< TInputImage, TOutputImage>
         ++length;
         ++inLineIt;
         while( !inLineIt.IsAtEndOfLine()
-          && inLineIt.Get() == NumericTraits<InputPixelType>::Zero )
+          && inLineIt.Get() != m_ForegroundValue )
           {
           ++length;
           ++inLineIt;
@@ -456,6 +482,7 @@ BorderImageFilter< TInputImage, TOutputImage>
   Superclass::PrintSelf(os,indent);
 
   os << indent << "FullyConnected: "  << m_FullyConnected << std::endl;
+  os << indent << "ForegroundValue: "  << static_cast<typename NumericTraits<InputImagePixelType>::PrintType>(m_ForegroundValue) << std::endl;
   os << indent << "BackgroundValue: "  << static_cast<typename NumericTraits<OutputImagePixelType>::PrintType>(m_BackgroundValue) << std::endl;
 }
 
