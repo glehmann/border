@@ -2,7 +2,7 @@
 PROJECT(border)
 
 # set the name of the input image used to run the test
-SET(INPUT_IMAGE ${CMAKE_CURRENT_SOURCE_DIR}/images/cthead1.png)
+SET(INPUT_IMAGE ${CMAKE_CURRENT_SOURCE_DIR}/images/embryo-fill.png)
 
 #include some macros from another file...
 INCLUDE(IJMacros.txt)
@@ -77,7 +77,12 @@ ENDIF(BUILD_TESTING)
 #any tests you can comment out or delete the following line.
 # ADD_TEST(Testname ExecutableToRun arg1 arg2 arg3)
 
-ADD_TEST(Test ${TEST_COMMAND}
-   check ${INPUT_IMAGE} out.png
-   --compare out.png ${CMAKE_CURRENT_SOURCE_DIR}/images/test.png
+ADD_TEST(Test0 ${TEST_COMMAND}
+   check ${INPUT_IMAGE} embryo-fill-0-0-255.png 0
+   --compare embryo-fill-0-0-255.png ${CMAKE_CURRENT_SOURCE_DIR}/images/embryo-fill-0-0-255.png
+)
+
+ADD_TEST(Test1 ${TEST_COMMAND}
+   check ${INPUT_IMAGE} embryo-fill-1-0-255.png 1
+   --compare embryo-fill-1-0-255.png ${CMAKE_CURRENT_SOURCE_DIR}/images/embryo-fill-1-0-255.png
 )
