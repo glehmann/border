@@ -18,7 +18,7 @@
 #ifndef __itkBorderImageFilter_h
 #define __itkBorderImageFilter_h
 
-#include "itkImageToImageFilter.h"
+#include "itkInPlaceImageFilter.h"
 #include "itkImage.h"
 #include "itkConceptChecking.h"
 #include <vector>
@@ -51,14 +51,14 @@ namespace itk
 
 template <class TInputImage, class TOutputImage>
 class ITK_EXPORT BorderImageFilter : 
-    public ImageToImageFilter< TInputImage, TOutputImage > 
+    public InPlaceImageFilter< TInputImage, TOutputImage > 
 {
 public:
   /**
    * Standard "Self" & Superclass typedef.
    */
   typedef BorderImageFilter                   Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
+  typedef InPlaceImageFilter< TInputImage, TOutputImage > Superclass;
 
   /**
    * Types from the Superclass
