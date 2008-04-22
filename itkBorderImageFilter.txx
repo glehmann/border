@@ -23,6 +23,7 @@
 // don't think we need the indexed version as we only compute the
 // index at the start of each run, but there isn't a choice
 #include "itkImageLinearConstIteratorWithIndex.h"  
+#include "itkImageLinearIteratorWithIndex.h"  
 #include "itkConstShapedNeighborhoodIterator.h"
 #include "itkImageRegionIterator.h"
 #include "itkMaskImageFilter.h"
@@ -95,34 +96,6 @@ BorderImageFilter< TInputImage, TOutputImage>
   typename TOutputImage::Pointer output = this->GetOutput();
   typename TInputImage::ConstPointer input = this->GetInput();
 
-
-  // first copy the input image to the output image
-  ImageRegionConstIterator<InputImageType> inIt
-            = ImageRegionConstIterator<InputImageType>( input, outputRegionForThread );
-  // iterator on output image
-  ImageRegionIterator<OutputImageType> outIt
-            = ImageRegionIterator<OutputImageType>( output, outputRegionForThread );
-  outIt.GoToBegin();
-  inIt.GoToBegin();
-
-  ProgressReporter * progress2 = new ProgressReporter(this, threadId, outputRegionForThread.GetNumberOfPixels(), 20, 0.0, 0.2);
-  while( !outIt.IsAtEnd() )
-    {
-    if( inIt.Get() != m_ForegroundValue )
-      {
-      outIt.Set( static_cast<OutputPixelType>( inIt.Get() ) );
-      }
-    else
-      {
-      outIt.Set( m_BackgroundValue );
-      }
-    ++outIt;
-    ++inIt;
-    progress2->CompletedPixel();
-    }
-  delete progress2;
-
-
   long nbOfThreads = this->GetNumberOfThreads();
   if( itk::MultiThreader::GetGlobalMaximumNumberOfThreads() != 0 )
     {
@@ -135,11 +108,16 @@ BorderImageFilter< TInputImage, TOutputImage>
   InputLineIteratorType inLineIt(input, outputRegionForThread);
   inLineIt.SetDirection(0);
 
+  typedef itk::ImageLinearIteratorWithIndex<OutputImageType>
+    OutputLineIteratorType;
+  OutputLineIteratorType outLineIt(output, outputRegionForThread);
+  outLineIt.SetDirection(0);
+
   // set the progress reporter to deal with the number of lines
   long pixelcountForThread = outputRegionForThread.GetNumberOfPixels();
   long xsizeForThread = outputRegionForThread.GetSize()[0];
   long linecountForThread = pixelcountForThread/xsizeForThread;
-  ProgressReporter progress(this, threadId, linecountForThread * 2, 80, 0.2, 0.8);
+  ProgressReporter progress(this, threadId, linecountForThread * 2);
 
   // find the split axis
   IndexType outputRegionIdx = output->GetRequestedRegion().GetIndex();
@@ -162,11 +140,13 @@ BorderImageFilter< TInputImage, TOutputImage>
   OffsetVec LineOffsets;
   SetupLineOffsets(LineOffsets);
 
+  outLineIt.GoToBegin();
   for( inLineIt.GoToBegin();
     !inLineIt.IsAtEnd();
-    inLineIt.NextLine() )
+    inLineIt.NextLine(), outLineIt.NextLine() )
     {
     inLineIt.GoToBeginOfLine();
+    outLineIt.GoToBeginOfLine();
     lineEncoding fgLine;
     lineEncoding bgLine;
     while (! inLineIt.IsAtEndOfLine())
@@ -181,13 +161,17 @@ BorderImageFilter< TInputImage, TOutputImage>
         IndexType thisIndex;
         thisIndex = inLineIt.GetIndex();
         //std::cout << thisIndex << std::endl;
+        outLineIt.Set( m_BackgroundValue );
         ++length;
         ++inLineIt;
+        ++outLineIt;
         while( !inLineIt.IsAtEndOfLine()
           && inLineIt.Get() == m_ForegroundValue )
           {
+          outLineIt.Set( m_BackgroundValue );
           ++length;
           ++inLineIt;
+          ++outLineIt;
           }
         // create the run length object to go in the vector
         thisRun.length=length;
@@ -203,13 +187,17 @@ BorderImageFilter< TInputImage, TOutputImage>
         IndexType thisIndex;
         thisIndex = inLineIt.GetIndex();
         //std::cout << thisIndex << std::endl;
+        outLineIt.Set( PVal );
         ++length;
         ++inLineIt;
+        ++outLineIt;
         while( !inLineIt.IsAtEndOfLine()
           && inLineIt.Get() != m_ForegroundValue )
           {
+          outLineIt.Set( inLineIt.Get() );
           ++length;
           ++inLineIt;
+          ++outLineIt;
           }
         // create the run length object to go in the vector
         thisRun.length=length;
