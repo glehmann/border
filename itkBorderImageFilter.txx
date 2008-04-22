@@ -211,15 +211,9 @@ BorderImageFilter< TInputImage, TOutputImage>
   long linecount = pixelcount/xsize;
 
   long lastLineIdForThread =  linecount;
-  long nbOfLineIdToJoin = 0;
   if( threadId != nbOfThreads - 1 )
     {
-    SizeType outputRegionForThreadSize = outputRegionForThread.GetSize();
-    outputRegionForThreadSize[splitAxis] -= 1;
-    lastLineIdForThread = firstLineIdForThread + RegionType( outputRegionIdx, outputRegionForThreadSize ).GetNumberOfPixels() / xsizeForThread;
-    m_FirstLineIdToJoin[threadId] = lastLineIdForThread;
-    // found the number of line ids to join
-    nbOfLineIdToJoin = RegionType( outputRegionIdx, outputRegionForThread.GetSize() ).GetNumberOfPixels() / xsizeForThread - RegionType( outputRegionIdx, outputRegionForThreadSize ).GetNumberOfPixels() / xsizeForThread;
+    lastLineIdForThread = firstLineIdForThread + RegionType( outputRegionIdx, outputRegionForThread.GetSize() ).GetNumberOfPixels() / xsizeForThread;
     }
 
   for(long ThisIdx = firstLineIdForThread; ThisIdx < lastLineIdForThread; ++ThisIdx)
@@ -244,6 +238,7 @@ BorderImageFilter< TInputImage, TOutputImage>
           }
         }
       }
+    progress.CompletedPixel();
     }
   
 }

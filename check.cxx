@@ -18,8 +18,8 @@ int main(int argc, char * argv[])
     exit(1);
     }
 
-  itk::MultiThreader::SetGlobalMaximumNumberOfThreads(1);
-  const int dim = 2;
+//   itk::MultiThreader::SetGlobalMaximumNumberOfThreads(1);
+  const int dim = 3;
   
   typedef unsigned char PType;
   typedef itk::Image< PType, dim > IType;
@@ -33,7 +33,7 @@ int main(int argc, char * argv[])
   filter->SetInput( reader->GetOutput() );
   filter->SetFullyConnected( atoi(argv[1]) );
 
-//   itk::SimpleFilterWatcher watcher(filter, "filter");
+  itk::SimpleFilterWatcher watcher(filter, "filter");
 
   typedef itk::ImageFileWriter< IType > WriterType;
   WriterType::Pointer writer = WriterType::New();
