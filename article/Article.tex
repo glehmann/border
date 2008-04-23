@@ -198,6 +198,10 @@ int main(int argc, char * argv[])
 }
 \end{verbatim} \normalsize
 
+\section{Acknowledgments}
+I thank Dr Pierre Adenot and MIMA2 confocal facilities
+(\url{http://mima2.jouy.inra.fr}) for providing the 3D test image.
+
 \section{Conclusion}
 
 That contribution can highly enhance the performance of the algorithms where the border of the objects must be detected. Use in \doxygen{SignedMaurerDistanceMapImageFilter}\footnote{A multithreaded version of \doxygen{SignedMaurerDistanceMapImageFilter} which use that contribution is available at \url{http://voxel.jouy.inra.fr/darcs/contrib-itk/watershed/}} instead of \doxygen{BinaryErodeImageFilter}, it can speedup the execution time by about 30\%.
@@ -229,7 +233,7 @@ That contribution can highly enhance the performance of the algorithms where the
 
 \bibliographystyle{plain}
 \bibliography{InsightJournal}
-\nocite{ITKSoftwareGuide}
+% \nocite{ITKSoftwareGuide}
 
 \end{document}
 
