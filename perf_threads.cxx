@@ -22,11 +22,25 @@ int main(int, char * argv[])
   BinaryType::Pointer binary = BinaryType::New();
   binary->SetInput( reader->GetOutput() );
   binary->SetForegroundValue( 1 );
+  binary->SetFullyConnected( false );
+  binary->Update();
+
+  BinaryType::Pointer fbinary = BinaryType::New();
+  fbinary->SetInput( reader->GetOutput() );
+  fbinary->SetForegroundValue( 1 );
+  fbinary->SetFullyConnected( true );
+  fbinary->Update();
 
   typedef itk::LabelBorderImageFilter< IType, IType > LabelType;
   LabelType::Pointer label = LabelType::New();
   label->SetInput( reader->GetOutput() );
+  label->SetFullyConnected( false );
+  label->Update();
 
+  LabelType::Pointer flabel = LabelType::New();
+  flabel->SetInput( reader->GetOutput() );
+  flabel->SetFullyConnected( true );
+  flabel->Update();
   
   typedef itk::FlatStructuringElement< dim > SRType;
   SRType::RadiusType rad;
@@ -49,28 +63,48 @@ int main(int, char * argv[])
   
   std::cout << "#nb" << "\t" 
             << "b" << "\t" 
+            << "fb" << "\t" 
             << "l" << "\t"
+            << "fl" << "\t"
             << "e" << std::endl;
 
   itk::TimeProbe etime;
   for( int t=1; t<=10; t++ )
     {
     itk::TimeProbe btime;
+    itk::TimeProbe fbtime;
     itk::TimeProbe ltime;
+    itk::TimeProbe fltime;
   
     binary->SetNumberOfThreads( t );
+    fbinary->SetNumberOfThreads( t );
     label->SetNumberOfThreads( t );
+    flabel->SetNumberOfThreads( t );
     erode->SetNumberOfThreads( t );
     
     for( int i=0; i<10; i++ )
       {
+      binary->Modified();
+      fbinary->Modified();
+      label->Modified();
+      flabel->Modified();
+      erode->Modified();
+
       btime.Start();
       binary->Update();
       btime.Stop();
       
+      fbtime.Start();
+      fbinary->Update();
+      fbtime.Stop();
+      
       ltime.Start();
       label->Update();
       ltime.Stop();
+      
+      fltime.Start();
+      flabel->Update();
+      fltime.Stop();
       
       if( t==1 )
         {
@@ -78,15 +112,13 @@ int main(int, char * argv[])
         erode->Update();
         etime.Stop();
         }
-      
-      binary->Modified();
-      label->Modified();
-      erode->Modified();
       }
       
     std::cout << std::setprecision(3) << t << "\t" 
               << btime.GetMeanTime() << "\t"
+              << fbtime.GetMeanTime() << "\t"
               << ltime.GetMeanTime() << "\t"
+              << fltime.GetMeanTime() << "\t"
               << etime.GetMeanTime() << std::endl;
     }
   
