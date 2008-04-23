@@ -81,12 +81,22 @@ ENDIF(BUILD_TESTING)
 #any tests you can comment out or delete the following line.
 # ADD_TEST(Testname ExecutableToRun arg1 arg2 arg3)
 
-ADD_TEST(Test0 ${TEST_COMMAND}
+ADD_TEST(Binary0 ${TEST_COMMAND}
    binary ${INPUT_IMAGE} embryo-fill-0-0-255.png 0 255 0
    --compare embryo-fill-0-0-255.png ${CMAKE_CURRENT_SOURCE_DIR}/images/embryo-fill-0-0-255.png
 )
 
-ADD_TEST(Test1 ${TEST_COMMAND}
+ADD_TEST(Binary1 ${TEST_COMMAND}
    binary ${INPUT_IMAGE} embryo-fill-1-0-255.png 1 255 0
    --compare embryo-fill-1-0-255.png ${CMAKE_CURRENT_SOURCE_DIR}/images/embryo-fill-1-0-255.png
+)
+
+ADD_TEST(Label0 ${TEST_COMMAND}
+   label ${CMAKE_CURRENT_SOURCE_DIR}/images/2th_cthead1.png 2th_cthead1-0-0.png 0 0
+   --compare 2th_cthead1-0-0.png ${CMAKE_CURRENT_SOURCE_DIR}/images/2th_cthead1-0-0.png
+)
+
+ADD_TEST(Label1 ${TEST_COMMAND}
+   label ${CMAKE_CURRENT_SOURCE_DIR}/images/2th_cthead1.png 2th_cthead1-1-0.png 1 0
+   --compare 2th_cthead1-1-0.png ${CMAKE_CURRENT_SOURCE_DIR}/images/2th_cthead1-1-0.png
 )
