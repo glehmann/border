@@ -26,6 +26,7 @@ colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue},
 \usepackage{listings}
 % subfigures
 \usepackage{subfigure}
+\usepackage{amssymb}
 
 
 %  This is a template for Papers to the Insight Journal. 
@@ -33,16 +34,18 @@ colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue},
 
 % The title should be descriptive enough for people to be able to find
 % the relevant document. 
-\title{}
+\title{Efficient border detection in binary and label images}
 
 % Increment the release number whenever significant changes are made.
 % The author and/or editor can define 'significant' however they like.
-\release{0.00}
+% \release{0.00}
 
 % At minimum, give your name and an email address.  You can include a
 % snail-mail address if you like.
-\author{}
-\authoraddress{}
+\author{Ga\"etan Lehmann{$^1$}}
+\authoraddress{{$^1$}INRA, UMR 1198; ENVA; CNRS, FRE 2857, Biologie du
+D\'eveloppement et
+Reproduction, Jouy en Josas, F-78350, France.}
 
 \begin{document}
 \maketitle
@@ -54,12 +57,150 @@ colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue},
 
 \begin{abstract}
 \noindent
-% The abstract should be a paragraph or two long, and describe the
-% scope of the document.
+Currently in ITK, the only way to find the border of the objects in a binary image is to use the \doxygen{BinaryErodeImageFilter}, with a kernel of radius $1$. This filter is a generic filter, made to support any shape and size of structuring element, and thus is not optimized for the particular case needed to detect the borders. Moreover, that filter is not multithreaded, so it can't get the performance improvements allowed by the multiprocessor systems. As a result, the border detection can be quite time consumming currently -- for example, in \doxygen{SignedMaurerDistanceMapImageFilter}, the border detection takes about 33\% of the execution time.
+
+This contribution comes with a new filter which highly improve the performance of the border detection in the binary image, and a second filter which allow the detection of the borders in label images with similar performance.
+
 \end{abstract}
 
-\tableofcontents
+% \tableofcontents
 
+\section{Algorithm and implementation}
+
+The \doxygen{BinaryBorderImageFilter} and the \doxygen{LabelBorderImageFilter} are based on \doxygen{ConnectedComponentImageFilter}\footnote{More precisely, on a multithreaded version of \doxygen{ConnectedComponentImageFilter}, available at \\ \url{http://voxel.jouy.inra.fr/darcs/contrib-itk/watershed/}} from \cite{Beare:2006p42}. The images is first transformed in a set of lines in the foreground and in the background. The foreground lines which are touching the background are found in the second step, as well as the determination of the exact part of the line on the border of the object. That way, the image is visited only in raster order, and the comparisons made on blocks of pixels.
+
+Both filters can be run in place.
+
+\section{Binary and label images} \doxygen{BinaryBorderImageFilter} performs a border detection on a single label, and preserves the other (background) values. \doxygen{LabelBorderImageFilter} a detection on all the labels in the image, excepted the background label. Because \doxygen{BinaryBorderImageFilter} works only on two kinds of pixels, it can be much optimized than \doxygen{LabelBorderImageFilter}. The performance difference are not that important though, because most of the execution time is spent in reading the input image, and writing the output one.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{2th_cthead1}
+\caption{The input image.\label{cthead1}}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{2th_cthead1-1-200-0}
+\caption{Binary border detection (foreground value is $200$). The background is unchanged.\label{cthead1-bin}}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{2th_cthead1-1-0}
+\caption{Label border detection. All the label in the image are changed.\label{cthead1-label}}
+\end{figure}
+
+\section{Performance}
+
+The performance tests have been run on a Intel\circledR~Pentium\circledR~4 CPU at 3.20GHz with 2GB of RAM running linux 2.6.12, with the command \verb$./perf_threads image/big.nrrd$. The size of the image used for the test is $1024 \times 1024 \times 89$.
+
+The execution time is 1.29 seconds for the binary case, 1.42 seconds for the label case, and 67.6 seconds for the morphological erosion. The speed up is 52.4 for the binary case.
+
+\section{Examples}
+\subsection{Binary case}
+
+\small \begin{verbatim}
+#include "itkImageFileReader.h"
+#include "itkImageFileWriter.h"
+#include "itkSimpleFilterWatcher.h"
+
+#include "itkBinaryBorderImageFilter.h"
+
+
+int main(int argc, char * argv[])
+{
+
+  if( argc != 6 )
+    {
+    std::cerr << "usage: " << argv[0] << " intput output fullyConnected fg bg" << std::endl;
+    std::cerr << " input: the input image" << std::endl;
+    std::cerr << " output: the output image" << std::endl;
+    std::cerr << " fullyConnected: 0 or 1" << std::endl;
+    exit(1);
+    }
+
+//   itk::MultiThreader::SetGlobalMaximumNumberOfThreads(1);
+  const int dim = 3;
+  
+  typedef unsigned char PType;
+  typedef itk::Image< PType, dim > IType;
+
+  typedef itk::ImageFileReader< IType > ReaderType;
+  ReaderType::Pointer reader = ReaderType::New();
+  reader->SetFileName( argv[1] );
+
+  typedef itk::BinaryBorderImageFilter< IType, IType > FilterType;
+  FilterType::Pointer filter = FilterType::New();
+  filter->SetInput( reader->GetOutput() );
+  filter->SetFullyConnected( atoi(argv[3]) );
+  filter->SetForegroundValue( atoi(argv[4]) );
+  filter->SetBackgroundValue( atoi(argv[5]) );
+
+  itk::SimpleFilterWatcher watcher(filter, "filter");
+
+  typedef itk::ImageFileWriter< IType > WriterType;
+  WriterType::Pointer writer = WriterType::New();
+  writer->SetInput( filter->GetOutput() );
+  writer->SetFileName( argv[2] );
+  writer->Update();
+
+  return 0;
+}
+\end{verbatim} \normalsize
+
+\subsection{Label case}
+\small \begin{verbatim}
+#include "itkImageFileReader.h"
+#include "itkImageFileWriter.h"
+#include "itkSimpleFilterWatcher.h"
+
+#include "itkLabelBorderImageFilter.h"
+
+
+int main(int argc, char * argv[])
+{
+
+  if( argc != 5 )
+    {
+    std::cerr << "usage: " << argv[0] << " intput output fullyConnected bg" << std::endl;
+    std::cerr << " input: the input image" << std::endl;
+    std::cerr << " output: the output image" << std::endl;
+    std::cerr << " fullyConnected: 0 or 1" << std::endl;
+    exit(1);
+    }
+
+//   itk::MultiThreader::SetGlobalMaximumNumberOfThreads(1);
+  const int dim = 3;
+  
+  typedef unsigned char PType;
+  typedef itk::Image< PType, dim > IType;
+
+  typedef itk::ImageFileReader< IType > ReaderType;
+  ReaderType::Pointer reader = ReaderType::New();
+  reader->SetFileName( argv[1] );
+
+  typedef itk::LabelBorderImageFilter< IType, IType > FilterType;
+  FilterType::Pointer filter = FilterType::New();
+  filter->SetInput( reader->GetOutput() );
+  filter->SetFullyConnected( atoi(argv[3]) );
+  filter->SetBackgroundValue( atoi(argv[4]) );
+
+  itk::SimpleFilterWatcher watcher(filter, "filter");
+
+  typedef itk::ImageFileWriter< IType > WriterType;
+  WriterType::Pointer writer = WriterType::New();
+  writer->SetInput( filter->GetOutput() );
+  writer->SetFileName( argv[2] );
+  writer->Update();
+
+  return 0;
+}
+\end{verbatim} \normalsize
+
+\section{Conclusion}
+
+That contribution can highly enhance the performance of the algorithms where the border of the objects must be detected. Use in \doxygen{SignedMaurerDistanceMapImageFilter}\footnote{A multithreaded version of \doxygen{SignedMaurerDistanceMapImageFilter} which use that contribution is available at \url{http://voxel.jouy.inra.fr/darcs/contrib-itk/watershed/}} instead of \doxygen{BinaryErodeImageFilter}, it can speedup the execution time by about 30\%.
 
 % \url{http://www.itk.org}
 % \code{Insight/Documentation/Style.pdf}
@@ -80,11 +221,6 @@ colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue},
 
 % \ref{cthead1}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics{cthead1}
-\caption{The input image.\label{cthead1}}
-\end{figure}
 
 
 \appendix

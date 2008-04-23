@@ -2,7 +2,7 @@
 PROJECT(border)
 
 # set the name of the input image used to run the test
-SET(INPUT_IMAGE ${CMAKE_CURRENT_SOURCE_DIR}/images/embryo-fill.png)
+SET(INPUT_IMAGE ${CMAKE_CURRENT_SOURCE_DIR}/images/2th_cthead1.png)
 
 #include some macros from another file...
 INCLUDE(IJMacros.txt)
@@ -86,21 +86,21 @@ ENDIF(BUILD_TESTING)
 # ADD_TEST(Testname ExecutableToRun arg1 arg2 arg3)
 
 ADD_TEST(Binary0 ${TEST_COMMAND}
-   binary ${INPUT_IMAGE} embryo-fill-0-0-255.png 0 255 0
-   --compare embryo-fill-0-0-255.png ${CMAKE_CURRENT_SOURCE_DIR}/images/embryo-fill-0-0-255.png
+   binary ${INPUT_IMAGE} 2th_cthead1-0-200-0.png 0 200 0
+   --compare 2th_cthead1-0-200-0.png ${CMAKE_CURRENT_SOURCE_DIR}/images/2th_cthead1-0-200-0.png
 )
 
 ADD_TEST(Binary1 ${TEST_COMMAND}
-   binary ${INPUT_IMAGE} embryo-fill-1-0-255.png 1 255 0
-   --compare embryo-fill-1-0-255.png ${CMAKE_CURRENT_SOURCE_DIR}/images/embryo-fill-1-0-255.png
+   binary ${INPUT_IMAGE} 2th_cthead1-1-200-0.png 1 200 0
+   --compare 2th_cthead1-1-200-0.png ${CMAKE_CURRENT_SOURCE_DIR}/images/2th_cthead1-1-200-0.png
 )
 
 ADD_TEST(Label0 ${TEST_COMMAND}
-   label ${CMAKE_CURRENT_SOURCE_DIR}/images/2th_cthead1.png 2th_cthead1-0-0.png 0 0
+   label ${INPUT_IMAGE} 2th_cthead1-0-0.png 0 0
    --compare 2th_cthead1-0-0.png ${CMAKE_CURRENT_SOURCE_DIR}/images/2th_cthead1-0-0.png
 )
 
 ADD_TEST(Label1 ${TEST_COMMAND}
-   label ${CMAKE_CURRENT_SOURCE_DIR}/images/2th_cthead1.png 2th_cthead1-1-0.png 1 0
+   label ${INPUT_IMAGE} 2th_cthead1-1-0.png 1 0
    --compare 2th_cthead1-1-0.png ${CMAKE_CURRENT_SOURCE_DIR}/images/2th_cthead1-1-0.png
 )
