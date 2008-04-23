@@ -16,7 +16,7 @@ SET(TEST_COMMAND ${ITK_TEST_DRIVER} --add-before-env PATH ${CMAKE_CURRENT_BINARY
 #Declare any external dependencies that your project may have here.
 #examples include: ITK, VTK, JPEG, PNG, OpenGL, ZLIB, Perl, Java
 #If you're not sure what name to use, look in the Modules directory of your
-#cmake install and check that a file named Find(Package).cmake exists
+#cmake install and binary that a file named Find(Package).cmake exists
 SET(Required_Packages
   ITK
 )
@@ -63,7 +63,7 @@ ENDIF(BUILD_WRAPPERS)
 
 IF(BUILD_TESTING)
 
-SET(CurrentExe "check")
+SET(CurrentExe "binary")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
@@ -78,11 +78,11 @@ ENDIF(BUILD_TESTING)
 # ADD_TEST(Testname ExecutableToRun arg1 arg2 arg3)
 
 ADD_TEST(Test0 ${TEST_COMMAND}
-   check ${INPUT_IMAGE} embryo-fill-0-0-255.png 0 255 0
+   binary ${INPUT_IMAGE} embryo-fill-0-0-255.png 0 255 0
    --compare embryo-fill-0-0-255.png ${CMAKE_CURRENT_SOURCE_DIR}/images/embryo-fill-0-0-255.png
 )
 
 ADD_TEST(Test1 ${TEST_COMMAND}
-   check ${INPUT_IMAGE} embryo-fill-1-0-255.png 1 255 0
+   binary ${INPUT_IMAGE} embryo-fill-1-0-255.png 1 255 0
    --compare embryo-fill-1-0-255.png ${CMAKE_CURRENT_SOURCE_DIR}/images/embryo-fill-1-0-255.png
 )
