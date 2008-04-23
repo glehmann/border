@@ -413,8 +413,8 @@ BinaryBorderImageFilter< TInputImage, TOutputImage>
         // case 1
 //         std::cout << "case 1" << std::endl;
         eq = true;
-        oStart = nStart;
-        oLast = nLast;
+        oStart = ss1;
+        oLast = ee2;
         } 
       else if ((ss1 <= cStart) && (ee2 >= cLast))
         {
