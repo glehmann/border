@@ -57,7 +57,7 @@ Reproduction, Jouy en Josas, F-78350, France.}
 
 \begin{abstract}
 \noindent
-Currently in ITK, the only way to find the border of the objects in a binary image is to use the \doxygen{BinaryErodeImageFilter}, with a kernel of radius $1$. This filter is a generic filter, made to support any shape and size of structuring element, and thus is not optimized for the particular case needed to detect the borders. Moreover, that filter is not multithreaded, so it can't get the performance improvements allowed by the multiprocessor systems. As a result, the border detection can be quite time consumming currently -- for example, in \doxygen{SignedMaurerDistanceMapImageFilter}, the border detection takes about 33\% of the execution time.
+Currently in ITK, the only way to find the border of the objects in a binary image is to use the \doxygen{BinaryErodeImageFilter}, with a kernel of radius $1$. This filter is a generic filter, made to support any shape and size of structuring element, and thus is not optimized for the particular case needed to detect the borders. Moreover, that filter is not multithreaded, so it can't get the performance improvements allowed by the multiprocessor systems. As a result, the border detection can be quite time consuming currently -- for example, in \doxygen{SignedMaurerDistanceMapImageFilter}, the border detection takes about 33\% of the execution time.
 
 This contribution comes with a new filter which highly improve the performance of the border detection in the binary image, and a second filter which allow the detection of the borders in label images with similar performance.
 
