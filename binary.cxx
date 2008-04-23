@@ -18,7 +18,7 @@ int main(int argc, char * argv[])
     exit(1);
     }
 
-  itk::MultiThreader::SetGlobalMaximumNumberOfThreads(1);
+//   itk::MultiThreader::SetGlobalMaximumNumberOfThreads(1);
   const int dim = 3;
   
   typedef unsigned char PType;
