@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Insight Segmentation & Registration Toolkit
-  Module:    $RCSfile: itkLabelBorderImageFilter.txx,v $
+  Module:    $RCSfile: itkLabelContourImageFilter.txx,v $
   Language:  C++
   Date:      $Date: 2007/09/05 15:43:34 $
   Version:   $Revision: 1.22 $
@@ -14,10 +14,10 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef __itkLabelBorderImageFilter_txx
-#define __itkLabelBorderImageFilter_txx
+#ifndef __itkLabelContourImageFilter_txx
+#define __itkLabelContourImageFilter_txx
 
-#include "itkLabelBorderImageFilter.h"
+#include "itkLabelContourImageFilter.h"
 #include "itkNumericTraits.h"
 
 // don't think we need the indexed version as we only compute the
@@ -33,7 +33,7 @@ namespace itk
 {
 template< class TInputImage, class TOutputImage>
 void
-LabelBorderImageFilter< TInputImage, TOutputImage>
+LabelContourImageFilter< TInputImage, TOutputImage>
 ::GenerateInputRequestedRegion()
 {
   // call the superclass' implementation of this method
@@ -51,7 +51,7 @@ LabelBorderImageFilter< TInputImage, TOutputImage>
 
 template< class TInputImage, class TOutputImage>
 void 
-LabelBorderImageFilter< TInputImage, TOutputImage>
+LabelContourImageFilter< TInputImage, TOutputImage>
 ::EnlargeOutputRequestedRegion(DataObject *)
 {
   this->GetOutput()
@@ -61,7 +61,7 @@ LabelBorderImageFilter< TInputImage, TOutputImage>
 
 template< class TInputImage, class TOutputImage>
 void
-LabelBorderImageFilter< TInputImage, TOutputImage>
+LabelContourImageFilter< TInputImage, TOutputImage>
 ::BeforeThreadedGenerateData()
 {
   typename TOutputImage::Pointer output = this->GetOutput();
@@ -87,7 +87,7 @@ LabelBorderImageFilter< TInputImage, TOutputImage>
 
 template< class TInputImage, class TOutputImage>
 void
-LabelBorderImageFilter< TInputImage, TOutputImage>
+LabelContourImageFilter< TInputImage, TOutputImage>
 ::ThreadedGenerateData(const RegionType& outputRegionForThread,
          int threadId) 
 {
@@ -225,7 +225,7 @@ LabelBorderImageFilter< TInputImage, TOutputImage>
 
 template< class TInputImage, class TOutputImage>
 void
-LabelBorderImageFilter< TInputImage, TOutputImage>
+LabelContourImageFilter< TInputImage, TOutputImage>
 ::AfterThreadedGenerateData()
 {
   m_Barrier = NULL;
@@ -235,7 +235,7 @@ LabelBorderImageFilter< TInputImage, TOutputImage>
 
 template< class TInputImage, class TOutputImage>
 void
-LabelBorderImageFilter< TInputImage, TOutputImage>
+LabelContourImageFilter< TInputImage, TOutputImage>
 ::SetupLineOffsets(OffsetVec &LineOffsets)
 {
   // Create a neighborhood so that we can generate a table of offsets
@@ -293,7 +293,7 @@ LabelBorderImageFilter< TInputImage, TOutputImage>
 
 template< class TInputImage, class TOutputImage>
 bool
-LabelBorderImageFilter< TInputImage, TOutputImage>
+LabelContourImageFilter< TInputImage, TOutputImage>
 ::CheckNeighbors(const OutputIndexType &A, 
                  const OutputIndexType &B)
 {
@@ -314,7 +314,7 @@ LabelBorderImageFilter< TInputImage, TOutputImage>
 
 template< class TInputImage, class TOutputImage>
 void
-LabelBorderImageFilter< TInputImage, TOutputImage>
+LabelContourImageFilter< TInputImage, TOutputImage>
 ::CompareLines(lineEncoding &current, const lineEncoding &Neighbour)
 {
   bool sameLine = true;
@@ -438,7 +438,7 @@ LabelBorderImageFilter< TInputImage, TOutputImage>
 
 template< class TInputImage, class TOutputImage>
 void
-LabelBorderImageFilter< TInputImage, TOutputImage>
+LabelContourImageFilter< TInputImage, TOutputImage>
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
   Superclass::PrintSelf(os,indent);

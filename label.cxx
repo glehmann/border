@@ -2,7 +2,7 @@
 #include "itkImageFileWriter.h"
 #include "itkSimpleFilterWatcher.h"
 
-#include "itkLabelBorderImageFilter.h"
+#include "itkLabelContourImageFilter.h"
 
 
 int main(int argc, char * argv[])
@@ -28,7 +28,7 @@ int main(int argc, char * argv[])
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( argv[1] );
 
-  typedef itk::LabelBorderImageFilter< IType, IType > FilterType;
+  typedef itk::LabelContourImageFilter< IType, IType > FilterType;
   FilterType::Pointer filter = FilterType::New();
   filter->SetInput( reader->GetOutput() );
   filter->SetFullyConnected( atoi(argv[3]) );

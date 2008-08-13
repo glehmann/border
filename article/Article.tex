@@ -34,7 +34,7 @@ colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue},
 
 % The title should be descriptive enough for people to be able to find
 % the relevant document. 
-\title{Efficient border detection in binary and label images}
+\title{Efficient countour detection in binary and label images}
 
 % Increment the release number whenever significant changes are made.
 % The author and/or editor can define 'significant' however they like.
@@ -57,7 +57,7 @@ Reproduction, Jouy en Josas, F-78350, France.}
 
 \begin{abstract}
 \noindent
-Currently in ITK, the only way to find the border of the objects in a binary image is to use the \doxygen{BinaryErodeImageFilter}, with a kernel of radius $1$. This filter is a generic filter, made to support any shape and size of structuring element, and thus is not optimized for the particular case needed to detect the borders. Moreover, that filter is not multithreaded, so it can't get the performance improvements allowed by the multiprocessor systems. As a result, the border detection can be quite time consuming currently -- for example, in \doxygen{SignedMaurerDistanceMapImageFilter}, the border detection takes about 33\% of the execution time.
+Currently in ITK, the contour of the objects in a binary image can be found with \doxygen{BinaryErodeImageFilter}, with a kernel of radius $1$ and \doxygen{SimpleContourExtractorImageFilter}. BinaryErodeImageFilter is a generic filter, made to support any shape and size of structuring element, and thus is not optimized for the particular case needed to detect the borders. Moreover, that filter is not multithreaded, so it can't get the performance improvements allowed by the multiprocessor systems. As a result, the border detection can be quite time consuming currently -- for example, in \doxygen{SignedMaurerDistanceMapImageFilter}, the border detection takes about 33\% of the execution time. SimpleContourExtractorImageFilter gives better performance, but uses a rough approach which let a good place for performance enhancements.
 
 This contribution comes with a new filter which highly improve the performance of the border detection in the binary image, and a second filter which allow the detection of the borders in label images with similar performance.
 
@@ -67,11 +67,11 @@ This contribution comes with a new filter which highly improve the performance o
 
 \section{Algorithm and implementation}
 
-The \doxygen{BinaryBorderImageFilter} and the \doxygen{LabelBorderImageFilter} are based on \doxygen{ConnectedComponentImageFilter}\footnote{More precisely, on a multithreaded version of \doxygen{ConnectedComponentImageFilter}, available at \\ \url{http://voxel.jouy.inra.fr/darcs/contrib-itk/watershed/}} from \cite{Beare:2006p42}. The images is first transformed in a set of lines in the foreground and in the background. The foreground lines which are touching the background are found in the second step, as well as the determination of the exact part of the line on the border of the object. That way, the image is visited only in raster order, and the comparisons made on blocks of pixels.
+The \doxygen{BinaryContourImageFilter} and the \doxygen{LabelContourImageFilter} are based on \doxygen{ConnectedComponentImageFilter}\footnote{More precisely, on a multithreaded version of \doxygen{ConnectedComponentImageFilter}, available at \\ \url{http://voxel.jouy.inra.fr/darcs/contrib-itk/watershed/}} from \cite{Beare:2006p42}. The images is first transformed in a set of lines in the foreground and in the background. The foreground lines which are touching the background are found in the second step, as well as the determination of the exact part of the line on the border of the object. That way, the image is visited only in raster order, and the comparisons made on blocks of pixels.
 
 Both filters can be run in place.
 
-\section{Binary and label images} \doxygen{BinaryBorderImageFilter} performs a border detection on a single label, and preserves the other (background) values. \doxygen{LabelBorderImageFilter} a detection on all the labels in the image, excepted the background label. Because \doxygen{BinaryBorderImageFilter} works only on two kinds of pixels, it can be much optimized than \doxygen{LabelBorderImageFilter}. The performance difference are not that important though, because most of the execution time is spent in reading the input image, and writing the output one.
+\section{Binary and label images} \doxygen{BinaryContourImageFilter} performs a border detection on a single label, and preserves the other (background) values. \doxygen{LabelContourImageFilter} a detection on all the labels in the image, excepted the background label. Because \doxygen{BinaryContourImageFilter} works only on two kinds of pixels, it can be much optimized than \doxygen{LabelContourImageFilter}. The performance difference are not that important though, because most of the execution time is spent in reading the input image, and writing the output one.
 
 \begin{figure}[htbp]
 \centering
@@ -95,7 +95,7 @@ Both filters can be run in place.
 
 The performance tests have been run on a Intel\circledR~Pentium\circledR~4 CPU at 3.20GHz with 2GB of RAM running linux 2.6.12, with the command \verb$./perf_threads image/big.nrrd$. The size of the image used for the test is $1024 \times 1024 \times 89$.
 
-The execution time is 1.29 seconds for the binary case, 1.42 seconds for the label case, and 67.6 seconds for the morphological erosion. The speed up is 52.4 for the binary case.
+The execution time is 1.29 seconds for the binary case, 1.42 seconds for the label case, 67.6 seconds for the morphological erosion, and 10.1 seconds for the simple countour extractor. Compared to the binary erosion used in the Maurer distance map filter, the speed up is 52.4. Compared to the simple countour extractor, the speedup is 7.8.
 
 \section{Examples}
 \subsection{Binary case}
@@ -105,7 +105,7 @@ The execution time is 1.29 seconds for the binary case, 1.42 seconds for the lab
 #include "itkImageFileWriter.h"
 #include "itkSimpleFilterWatcher.h"
 
-#include "itkBinaryBorderImageFilter.h"
+#include "itkBinaryContourImageFilter.h"
 
 
 int main(int argc, char * argv[])
@@ -130,7 +130,7 @@ int main(int argc, char * argv[])
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( argv[1] );
 
-  typedef itk::BinaryBorderImageFilter< IType, IType > FilterType;
+  typedef itk::BinaryContourImageFilter< IType, IType > FilterType;
   FilterType::Pointer filter = FilterType::New();
   filter->SetInput( reader->GetOutput() );
   filter->SetFullyConnected( atoi(argv[3]) );
@@ -155,7 +155,7 @@ int main(int argc, char * argv[])
 #include "itkImageFileWriter.h"
 #include "itkSimpleFilterWatcher.h"
 
-#include "itkLabelBorderImageFilter.h"
+#include "itkLabelContourImageFilter.h"
 
 
 int main(int argc, char * argv[])
@@ -180,7 +180,7 @@ int main(int argc, char * argv[])
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( argv[1] );
 
-  typedef itk::LabelBorderImageFilter< IType, IType > FilterType;
+  typedef itk::LabelContourImageFilter< IType, IType > FilterType;
   FilterType::Pointer filter = FilterType::New();
   filter->SetInput( reader->GetOutput() );
   filter->SetFullyConnected( atoi(argv[3]) );

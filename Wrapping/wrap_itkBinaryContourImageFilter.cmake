@@ -1,4 +1,4 @@
-WRAP_CLASS("itk::BinaryBorderImageFilter" POINTER)
+WRAP_CLASS("itk::BinaryContourImageFilter" POINTER)
 
   WRAP_IMAGE_FILTER_USIGN_INT(2)
   WRAP_IMAGE_FILTER_SIGN_INT(2)

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Insight Segmentation & Registration Toolkit
-  Module:    $RCSfile: itkLabelBorderImageFilter.h,v $
+  Module:    $RCSfile: itkBinaryContourImageFilter.h,v $
   Language:  C++
   Date:      $Date: 2007/10/05 10:31:58 $
   Version:   $Revision: 1.17 $
@@ -15,8 +15,8 @@
 
 =========================================================================*/
 
-#ifndef __itkLabelBorderImageFilter_h
-#define __itkLabelBorderImageFilter_h
+#ifndef __itkBinaryContourImageFilter_h
+#define __itkBinaryContourImageFilter_h
 
 #include "itkInPlaceImageFilter.h"
 #include "itkImage.h"
@@ -30,24 +30,24 @@ namespace itk
 {
 
 /**
- * \class LabelBorderImageFilter
+ * \class BinaryContourImageFilter
  * \brief Give the pixels on the border of an object.
  *
- * LabelBorderImageFilter labels the pixels on the borders
+ * BinaryContourImageFilter labels the pixels on the borders
  * of the objects in a binary image.
  *
  * \sa ImageToImageFilter 
  */
 
 template <class TInputImage, class TOutputImage>
-class ITK_EXPORT LabelBorderImageFilter : 
+class ITK_EXPORT BinaryContourImageFilter : 
     public InPlaceImageFilter< TInputImage, TOutputImage > 
 {
 public:
   /**
    * Standard "Self" & Superclass typedef.
    */
-  typedef LabelBorderImageFilter                   Self;
+  typedef BinaryContourImageFilter                   Self;
   typedef InPlaceImageFilter< TInputImage, TOutputImage > Superclass;
 
   /**
@@ -98,7 +98,7 @@ public:
   /**
    * Run-time type information (and related methods)
    */
-  itkTypeMacro(LabelBorderImageFilter, ImageToImageFilter);
+  itkTypeMacro(BinaryContourImageFilter, ImageToImageFilter);
   
   /**
    * Method for creation through the object factory.
@@ -125,14 +125,20 @@ public:
   itkSetMacro(BackgroundValue, OutputImagePixelType);
   itkGetMacro(BackgroundValue, OutputImagePixelType);
 
+  /**
+   */
+  itkSetMacro(ForegroundValue, InputImagePixelType);
+  itkGetMacro(ForegroundValue, InputImagePixelType);
+
 protected:
-  LabelBorderImageFilter() 
+  BinaryContourImageFilter() 
     {
     m_FullyConnected = false;
+    m_ForegroundValue = NumericTraits< InputImagePixelType >::max();
     m_BackgroundValue = NumericTraits< OutputImagePixelType >::Zero;
     }
-  virtual ~LabelBorderImageFilter() {}
-  LabelBorderImageFilter(const Self&) {}
+  virtual ~BinaryContourImageFilter() {}
+  BinaryContourImageFilter(const Self&) {}
   void PrintSelf(std::ostream& os, Indent indent) const;
 
   /**
@@ -142,12 +148,12 @@ protected:
   void AfterThreadedGenerateData ();
   void ThreadedGenerateData (const RegionType& outputRegionForThread, int threadId) ;
 
-  /** LabelBorderImageFilter needs the entire input. Therefore
+  /** BinaryContourImageFilter needs the entire input. Therefore
    * it must provide an implementation GenerateInputRequestedRegion().
    * \sa ProcessObject::GenerateInputRequestedRegion(). */
   void GenerateInputRequestedRegion();
 
-  /** LabelBorderImageFilter will produce all of the output.
+  /** BinaryContourImageFilter will produce all of the output.
    * Therefore it must provide an implementation of
    * EnlargeOutputRequestedRegion().
    * \sa ProcessObject::EnlargeOutputRequestedRegion() */
@@ -156,6 +162,7 @@ protected:
   bool m_FullyConnected;
   
 private:
+  InputImagePixelType m_ForegroundValue;
   OutputImagePixelType m_BackgroundValue;
 
   // some additional types
@@ -168,7 +175,6 @@ private:
     // run length information - may be a more type safe way of doing this
     long int length;
     typename InputImageType::IndexType where; // Index of the start of the run
-    InputImagePixelType label;
     };
 
   typedef std::vector<runLength> lineEncoding;
@@ -205,13 +211,14 @@ private:
   typename std::vector< long > m_NumberOfLabels;
   typename std::vector< long > m_FirstLineIdToJoin;
   typename Barrier::Pointer m_Barrier;
-  LineMapType m_LineMap;
+  LineMapType m_ForegroundLineMap;
+  LineMapType m_BackgroundLineMap;
 };
   
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLabelBorderImageFilter.txx"
+#include "itkBinaryContourImageFilter.txx"
 #endif
 
 #endif

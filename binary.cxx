@@ -2,7 +2,7 @@
 #include "itkImageFileWriter.h"
 #include "itkSimpleFilterWatcher.h"
 
-#include "itkBinaryBorderImageFilter.h"
+#include "itkBinaryContourImageFilter.h"
 
 
 int main(int argc, char * argv[])
@@ -28,7 +28,7 @@ int main(int argc, char * argv[])
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( argv[1] );
 
-  typedef itk::BinaryBorderImageFilter< IType, IType > FilterType;
+  typedef itk::BinaryContourImageFilter< IType, IType > FilterType;
   FilterType::Pointer filter = FilterType::New();
   filter->SetInput( reader->GetOutput() );
   filter->SetFullyConnected( atoi(argv[3]) );

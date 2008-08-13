@@ -1,6 +1,6 @@
 #include "itkImageFileReader.h"
-#include "itkBinaryBorderImageFilter.h"
-#include "itkLabelBorderImageFilter.h"
+#include "itkBinaryContourImageFilter.h"
+#include "itkLabelContourImageFilter.h"
 #include "itkBinaryErodeImageFilter.h"
 #include "itkSimpleContourExtractorImageFilter.h"
 #include "itkTimeProbe.h"
@@ -19,7 +19,7 @@ int main(int, char * argv[])
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( argv[1] );
   
-  typedef itk::BinaryBorderImageFilter< IType, IType > BinaryType;
+  typedef itk::BinaryContourImageFilter< IType, IType > BinaryType;
   BinaryType::Pointer binary = BinaryType::New();
   binary->SetInput( reader->GetOutput() );
   binary->SetForegroundValue( 1 );
@@ -32,7 +32,7 @@ int main(int, char * argv[])
   fbinary->SetFullyConnected( true );
   fbinary->Update();
 
-  typedef itk::LabelBorderImageFilter< IType, IType > LabelType;
+  typedef itk::LabelContourImageFilter< IType, IType > LabelType;
   LabelType::Pointer label = LabelType::New();
   label->SetInput( reader->GetOutput() );
   label->SetFullyConnected( false );
