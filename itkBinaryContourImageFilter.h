@@ -136,6 +136,7 @@ protected:
     m_FullyConnected = false;
     m_ForegroundValue = NumericTraits< InputImagePixelType >::max();
     m_BackgroundValue = NumericTraits< OutputImagePixelType >::Zero;
+    m_NumberOfThreads = 0;
     }
   virtual ~BinaryContourImageFilter() {}
   BinaryContourImageFilter(const Self&) {}
@@ -197,22 +198,16 @@ private:
 
   void Wait()
     {
-    long nbOfThreads = this->GetNumberOfThreads();
-    if( itk::MultiThreader::GetGlobalMaximumNumberOfThreads() != 0 )
-      {
-      nbOfThreads = std::min( this->GetNumberOfThreads(), itk::MultiThreader::GetGlobalMaximumNumberOfThreads() );
-      }
-    if( nbOfThreads > 1 )
+    if( m_NumberOfThreads > 1 )
       {
       m_Barrier->Wait();
       }
     }
 
-  typename std::vector< long > m_NumberOfLabels;
-  typename std::vector< long > m_FirstLineIdToJoin;
   typename Barrier::Pointer m_Barrier;
   LineMapType m_ForegroundLineMap;
   LineMapType m_BackgroundLineMap;
+  long m_NumberOfThreads;
 };
   
 } // end namespace itk

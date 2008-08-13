@@ -70,9 +70,13 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
   long nbOfThreads = this->GetNumberOfThreads();
   if( itk::MultiThreader::GetGlobalMaximumNumberOfThreads() != 0 )
     {
-    nbOfThreads = std::min( this->GetNumberOfThreads(), itk::MultiThreader::GetGlobalMaximumNumberOfThreads() );
+    nbOfThreads = vnl_math_min( this->GetNumberOfThreads(), itk::MultiThreader::GetGlobalMaximumNumberOfThreads() );
     }
-//   std::cout << "nbOfThreads: " << nbOfThreads << std::endl;
+  // number of threads can be constrained by the region size, so call the SplitRequestedRegion
+  // to get the real number of threads which will be used
+  typename TOutputImage::RegionType splitRegion;  // dummy region - just to call the following method
+  nbOfThreads = this->SplitRequestedRegion(0, nbOfThreads, splitRegion);
+//  std::cout << "nbOfThreads: " << nbOfThreads << std::endl;
 
   m_Barrier = Barrier::New();
   m_Barrier->Initialize( nbOfThreads );
@@ -83,7 +87,7 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
   m_ForegroundLineMap.resize( linecount );
   m_BackgroundLineMap.clear();
   m_BackgroundLineMap.resize( linecount );
-//  m_FirstLineIdToJoin.resize( nbOfThreads - 1 );
+  m_NumberOfThreads = nbOfThreads;
 }
 
 
@@ -95,12 +99,6 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
 {
   typename TOutputImage::Pointer output = this->GetOutput();
   typename TInputImage::ConstPointer input = this->GetInput();
-
-  long nbOfThreads = this->GetNumberOfThreads();
-  if( itk::MultiThreader::GetGlobalMaximumNumberOfThreads() != 0 )
-    {
-    nbOfThreads = std::min( this->GetNumberOfThreads(), itk::MultiThreader::GetGlobalMaximumNumberOfThreads() );
-    }
 
   // create a line iterator
   typedef itk::ImageLinearConstIteratorWithIndex<InputImageType>
@@ -225,7 +223,7 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
   long linecount = pixelcount/xsize;
 
   long lastLineIdForThread =  linecount;
-  if( threadId != nbOfThreads - 1 )
+  if( threadId != m_NumberOfThreads - 1 )
     {
     lastLineIdForThread = firstLineIdForThread + RegionType( outputRegionIdx, outputRegionForThread.GetSize() ).GetNumberOfPixels() / xsizeForThread;
     }
