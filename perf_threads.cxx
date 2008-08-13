@@ -2,6 +2,7 @@
 #include "itkBinaryBorderImageFilter.h"
 #include "itkLabelBorderImageFilter.h"
 #include "itkBinaryErodeImageFilter.h"
+#include "itkSimpleContourExtractorImageFilter.h"
 #include "itkTimeProbe.h"
 #include <vector>
 #include "itkFlatStructuringElement.h"
@@ -52,6 +53,11 @@ int main(int, char * argv[])
   erode->SetInput( reader->GetOutput() );
   erode->SetKernel( kernel );
   erode->SetForegroundValue( 1 );
+
+  typedef itk::SimpleContourExtractorImageFilter< IType, IType > SimpleType;
+  SimpleType::Pointer simple = SimpleType::New();
+  simple->SetInput( reader->GetOutput() );
+  simple->SetInputForegroundValue( 1 );
   
 /*  // write 
   typedef itk::ImageFileWriter< IType > WriterType;
@@ -66,7 +72,8 @@ int main(int, char * argv[])
             << "fb" << "\t" 
             << "l" << "\t"
             << "fl" << "\t"
-            << "e" << std::endl;
+            << "e" << "\t"
+            << "s" << std::endl;
 
   itk::TimeProbe etime;
   for( int t=1; t<=10; t++ )
@@ -75,12 +82,14 @@ int main(int, char * argv[])
     itk::TimeProbe fbtime;
     itk::TimeProbe ltime;
     itk::TimeProbe fltime;
+    itk::TimeProbe stime;
   
     binary->SetNumberOfThreads( t );
     fbinary->SetNumberOfThreads( t );
     label->SetNumberOfThreads( t );
     flabel->SetNumberOfThreads( t );
     erode->SetNumberOfThreads( t );
+    simple->SetNumberOfThreads( t );
     
     for( int i=0; i<10; i++ )
       {
@@ -89,6 +98,7 @@ int main(int, char * argv[])
       label->Modified();
       flabel->Modified();
       erode->Modified();
+      simple->Modified();
 
       btime.Start();
       binary->Update();
@@ -114,12 +124,17 @@ int main(int, char * argv[])
         }
       }
       
+      stime.Start();
+      simple->Update();
+      stime.Stop();
+      
     std::cout << std::setprecision(3) << t << "\t" 
               << btime.GetMeanTime() << "\t"
               << fbtime.GetMeanTime() << "\t"
               << ltime.GetMeanTime() << "\t"
               << fltime.GetMeanTime() << "\t"
-              << etime.GetMeanTime() << std::endl;
+              << etime.GetMeanTime() << "\t"
+              << stime.GetMeanTime() << std::endl;
     }
   
   
