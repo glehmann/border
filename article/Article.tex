@@ -57,9 +57,9 @@ Reproduction, Jouy en Josas, F-78350, France.}
 
 \begin{abstract}
 \noindent
-Currently in ITK, the contour of the objects in a binary image can be found with \doxygen{BinaryErodeImageFilter}, with a kernel of radius $1$ and \doxygen{SimpleContourExtractorImageFilter}. BinaryErodeImageFilter is a generic filter, made to support any shape and size of structuring element, and thus is not optimized for the particular case needed to detect the borders. Moreover, that filter is not multithreaded, so it can't get the performance improvements allowed by the multiprocessor systems. As a result, the border detection can be quite time consuming currently -- for example, in \doxygen{SignedMaurerDistanceMapImageFilter}, the border detection takes about 33\% of the execution time. SimpleContourExtractorImageFilter gives better performance, but uses a rough approach which let a good place for performance enhancements.
+Currently in ITK, the contour of the objects in a binary image can be found with \doxygen{BinaryErodeImageFilter}, with a kernel of radius $1$ and \doxygen{SimpleContourExtractorImageFilter}. BinaryErodeImageFilter is a generic filter, made to support any shape and size of structuring element, and thus is not optimized for the particular case needed to detect the contours. Moreover, that filter is not multithreaded, so it can't get the performance improvements allowed by the multiprocessor systems. As a result, the contour detection can be quite time consuming currently -- for example, in \doxygen{SignedMaurerDistanceMapImageFilter}, the contour detection takes about 33\% of the execution time. SimpleContourExtractorImageFilter gives better performance, but uses a rough approach which let a good place for performance enhancements.
 
-This contribution comes with a new filter which highly improve the performance of the border detection in the binary image, and a second filter which allow the detection of the borders in label images with similar performance.
+This contribution comes with a new filter which highly improve the performance of the contour detection in the binary image, and a second filter which allow the detection of the contours in label images with similar performance.
 
 \end{abstract}
 
@@ -67,11 +67,11 @@ This contribution comes with a new filter which highly improve the performance o
 
 \section{Algorithm and implementation}
 
-The \doxygen{BinaryContourImageFilter} and the \doxygen{LabelContourImageFilter} are based on \doxygen{ConnectedComponentImageFilter}\footnote{More precisely, on a multithreaded version of \doxygen{ConnectedComponentImageFilter}, available at \\ \url{http://voxel.jouy.inra.fr/darcs/contrib-itk/watershed/}} from \cite{Beare:2006p42}. The images is first transformed in a set of lines in the foreground and in the background. The foreground lines which are touching the background are found in the second step, as well as the determination of the exact part of the line on the border of the object. That way, the image is visited only in raster order, and the comparisons made on blocks of pixels.
+The \doxygen{BinaryContourImageFilter} and the \doxygen{LabelContourImageFilter} are based on \doxygen{ConnectedComponentImageFilter}\footnote{More precisely, on a multithreaded version of \doxygen{ConnectedComponentImageFilter}, available at \\ \url{http://voxel.jouy.inra.fr/darcs/contrib-itk/watershed/}} from \cite{Beare:2006p42}. The images is first transformed in a set of lines in the foreground and in the background. The foreground lines which are touching the background are found in the second step, as well as the determination of the exact part of the line on the contour of the object. That way, the image is visited only in raster order, and the comparisons made on blocks of pixels.
 
 Both filters can be run in place.
 
-\section{Binary and label images} \doxygen{BinaryContourImageFilter} performs a border detection on a single label, and preserves the other (background) values. \doxygen{LabelContourImageFilter} a detection on all the labels in the image, excepted the background label. Because \doxygen{BinaryContourImageFilter} works only on two kinds of pixels, it can be much optimized than \doxygen{LabelContourImageFilter}. The performance difference are not that important though, because most of the execution time is spent in reading the input image, and writing the output one.
+\section{Binary and label images} \doxygen{BinaryContourImageFilter} performs a contour detection on a single label, and preserves the other (background) values. \doxygen{LabelContourImageFilter} a detection on all the labels in the image, excepted the background label. Because \doxygen{BinaryContourImageFilter} works only on two kinds of pixels, it can be much optimized than \doxygen{LabelContourImageFilter}. The performance difference are not that important though, because most of the execution time is spent in reading the input image, and writing the output one.
 
 \begin{figure}[htbp]
 \centering
@@ -82,13 +82,13 @@ Both filters can be run in place.
 \begin{figure}[htbp]
 \centering
 \includegraphics{2th_cthead1-1-200-0}
-\caption{Binary border detection (foreground value is $200$). The background is unchanged.\label{cthead1-bin}}
+\caption{Binary contour detection (foreground value is $200$). The background is unchanged.\label{cthead1-bin}}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics{2th_cthead1-1-0}
-\caption{Label border detection. All the label in the image are changed.\label{cthead1-label}}
+\caption{Label contour detection. All the label in the image are changed.\label{cthead1-label}}
 \end{figure}
 
 \section{Performance}
@@ -204,7 +204,7 @@ I thank Dr Pierre Adenot and MIMA2 confocal facilities
 
 \section{Conclusion}
 
-That contribution can highly enhance the performance of the algorithms where the border of the objects must be detected. Use in \doxygen{SignedMaurerDistanceMapImageFilter}\footnote{A multithreaded version of \doxygen{SignedMaurerDistanceMapImageFilter} which use that contribution is available at \url{http://voxel.jouy.inra.fr/darcs/contrib-itk/watershed/}} instead of \doxygen{BinaryErodeImageFilter}, it can speedup the execution time by about 30\%.
+That contribution can highly enhance the performance of the algorithms where the contour of the objects must be detected. Use in \doxygen{SignedMaurerDistanceMapImageFilter}\footnote{A multithreaded version of \doxygen{SignedMaurerDistanceMapImageFilter} which use that contribution is available at \url{http://voxel.jouy.inra.fr/darcs/contrib-itk/watershed/}} instead of \doxygen{BinaryErodeImageFilter}, it can speedup the execution time by about 30\%.
 
 % \url{http://www.itk.org}
 % \code{Insight/Documentation/Style.pdf}

@@ -1,6 +1,6 @@
 
 # you should use the title of the article instead
-ARTICLE_TITLE = Efficient border detection in binary and label images
+ARTICLE_TITLE = Efficient contour detection in binary and label images
 
 # spaces are not allowed
 empty:=
