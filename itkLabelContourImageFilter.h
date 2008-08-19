@@ -131,6 +131,7 @@ protected:
     m_FullyConnected = false;
     m_BackgroundValue = NumericTraits< OutputImagePixelType >::Zero;
     m_NumberOfThreads = 0;
+    this->SetInPlace( false );
     }
   virtual ~LabelContourImageFilter() {}
   LabelContourImageFilter(const Self&) {}

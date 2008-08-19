@@ -137,6 +137,7 @@ protected:
     m_ForegroundValue = NumericTraits< InputImagePixelType >::max();
     m_BackgroundValue = NumericTraits< OutputImagePixelType >::Zero;
     m_NumberOfThreads = 0;
+    this->SetInPlace( false );
     }
   virtual ~BinaryContourImageFilter() {}
   BinaryContourImageFilter(const Self&) {}
