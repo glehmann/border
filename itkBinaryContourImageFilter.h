@@ -47,22 +47,22 @@ public:
   /**
    * Standard "Self" & Superclass typedef.
    */
-  typedef BinaryContourImageFilter                   Self;
+  typedef BinaryContourImageFilter                        Self;
   typedef InPlaceImageFilter< TInputImage, TOutputImage > Superclass;
 
   /**
    * Types from the Superclass
    */
-  typedef typename Superclass::InputImagePointer InputImagePointer;
+  typedef typename Superclass::InputImagePointer          InputImagePointer;
 
   /**
    * Extract some information from the image types.  Dimensionality
    * of the two images is assumed to be the same.
    */
-  typedef typename TOutputImage::PixelType         OutputPixelType;
-  typedef typename TOutputImage::InternalPixelType OutputInternalPixelType;
-  typedef typename TInputImage::PixelType          InputPixelType;
-  typedef typename TInputImage::InternalPixelType  InputInternalPixelType;
+  typedef typename TOutputImage::PixelType                OutputPixelType;
+  typedef typename TOutputImage::InternalPixelType        OutputInternalPixelType;
+  typedef typename TInputImage::PixelType                 InputPixelType;
+  typedef typename TInputImage::InternalPixelType         InputInternalPixelType;
 
   itkStaticConstMacro(ImageDimension, unsigned int,
                       TOutputImage::ImageDimension);
@@ -148,7 +148,7 @@ protected:
    */
   void BeforeThreadedGenerateData ();
   void AfterThreadedGenerateData ();
-  void ThreadedGenerateData (const RegionType& outputRegionForThread, int threadId) ;
+  void ThreadedGenerateData (const RegionType& outputRegionForThread, int threadId);
 
   /** BinaryContourImageFilter needs the entire input. Therefore
    * it must provide an implementation GenerateInputRequestedRegion().
@@ -161,12 +161,11 @@ protected:
    * \sa ProcessObject::EnlargeOutputRequestedRegion() */
   void EnlargeOutputRequestedRegion(DataObject *itkNotUsed(output));
 
-  bool m_FullyConnected;
-  
 private:
-  InputImagePixelType m_ForegroundValue;
+  InputImagePixelType  m_ForegroundValue;
   OutputImagePixelType m_BackgroundValue;
-
+  bool                 m_FullyConnected;
+  
   // some additional types
   typedef typename TOutputImage::RegionType::SizeType OutSizeType;
 
@@ -206,9 +205,9 @@ private:
     }
 
   typename Barrier::Pointer m_Barrier;
-  LineMapType m_ForegroundLineMap;
-  LineMapType m_BackgroundLineMap;
-  long m_NumberOfThreads;
+  LineMapType               m_ForegroundLineMap;
+  LineMapType               m_BackgroundLineMap;
+  long                      m_NumberOfThreads;
 };
   
 } // end namespace itk

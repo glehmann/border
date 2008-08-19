@@ -277,11 +277,10 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
   // offset for us. All this messing around produces an array of
   // offsets that will be used to index the map
   typename TOutputImage::Pointer output = this->GetOutput();
-  typedef Image<long, TOutputImage::ImageDimension - 1>   PretendImageType;
-  typedef typename PretendImageType::RegionType::SizeType PretendSizeType;
-  typedef typename PretendImageType::RegionType::IndexType PretendIndexType;
-  typedef ConstShapedNeighborhoodIterator<PretendImageType>
-    LineNeighborhoodType;
+  typedef Image<long, TOutputImage::ImageDimension - 1>     PretendImageType;
+  typedef typename PretendImageType::RegionType::SizeType   PretendSizeType;
+  typedef typename PretendImageType::RegionType::IndexType  PretendIndexType;
+  typedef ConstShapedNeighborhoodIterator<PretendImageType> LineNeighborhoodType;
 
   typename PretendImageType::Pointer fakeImage;
   fakeImage = PretendImageType::New();
@@ -446,9 +445,9 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
         IndexType idx = cIt->where;
         for( int x=oStart; x<=oLast; x++ )
           {
+//           std::cout << idx << std::endl;
           idx[0] = x;
           output->SetPixel( idx, m_ForegroundValue );
-//           std::cout << idx << std::endl;
           }
         if( oStart == cStart && oLast == cLast )
           {

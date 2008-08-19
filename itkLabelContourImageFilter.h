@@ -47,7 +47,7 @@ public:
   /**
    * Standard "Self" & Superclass typedef.
    */
-  typedef LabelContourImageFilter                   Self;
+  typedef LabelContourImageFilter                         Self;
   typedef InPlaceImageFilter< TInputImage, TOutputImage > Superclass;
 
   /**
@@ -142,7 +142,7 @@ protected:
    */
   void BeforeThreadedGenerateData ();
   void AfterThreadedGenerateData ();
-  void ThreadedGenerateData (const RegionType& outputRegionForThread, int threadId) ;
+  void ThreadedGenerateData (const RegionType& outputRegionForThread, int threadId);
 
   /** LabelContourImageFilter needs the entire input. Therefore
    * it must provide an implementation GenerateInputRequestedRegion().
@@ -155,11 +155,10 @@ protected:
    * \sa ProcessObject::EnlargeOutputRequestedRegion() */
   void EnlargeOutputRequestedRegion(DataObject *itkNotUsed(output));
 
-  bool m_FullyConnected;
-  
 private:
   OutputImagePixelType m_BackgroundValue;
-
+  bool                 m_FullyConnected;
+  
   // some additional types
   typedef typename TOutputImage::RegionType::SizeType OutSizeType;
 
@@ -200,8 +199,8 @@ private:
     }
 
   typename Barrier::Pointer m_Barrier;
-  LineMapType m_LineMap;
-  long m_NumberOfThreads;
+  LineMapType               m_LineMap;
+  long                      m_NumberOfThreads;
 };
   
 } // end namespace itk
