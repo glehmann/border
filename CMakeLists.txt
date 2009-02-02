@@ -1,6 +1,9 @@
 #Change PROJECT_NAME to the name of your project
 PROJECT(border)
 
+# cpack stuff
+INCLUDE(CPack)
+
 # set the name of the input image used to run the test
 SET(INPUT_IMAGE ${CMAKE_CURRENT_SOURCE_DIR}/images/2th_cthead1.png)
 
